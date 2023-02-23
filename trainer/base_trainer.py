@@ -65,8 +65,7 @@ class BaselineTrainer():
         val_loss = 0
         val_steps = 0
         val_score = 0
-        total_probs = []
-        total_labels = np.array([], dtype=np.long)
+
         val_loss_values= 2
         with torch.no_grad():
             self.model.eval()
@@ -86,7 +85,7 @@ class BaselineTrainer():
                 val_score += score
             
 
-            total_probs = np.array(total_probs)
+
             val_loss /= val_steps
             val_score /= val_steps 
             wandb.log({'val_loss':val_loss})
