@@ -8,6 +8,7 @@ import gc
 import einops as ein
 import torch.nn.functional as F
 from utils.metric import micro_f1
+import wandb
 
 class BaselineTrainer():
     """
@@ -53,7 +54,7 @@ class BaselineTrainer():
 
             epoch_loss += loss.detach().cpu().numpy().item()
             self.optimizer.step()
-            
+            wandb.log({'train_loss' : epoch_loss / steps})
             pbar.set_postfix({
                 'loss' : epoch_loss / steps,
                 'lr' : self.optimizer.param_groups[0]['lr'],
@@ -88,8 +89,10 @@ class BaselineTrainer():
             total_probs = np.array(total_probs)
             val_loss /= val_steps
             val_score /= val_steps 
+            wandb.log({'val_loss':val_loss})
+            wandb.log({'val_acc':val_score})
             print(f"Epoch [{epoch+1}/{self.epochs}] Val_loss : {val_loss}")
-            print(f"Epoch [{epoch+1}/{self.epochs}] 'Val_score' : total_score")
+            print(f"Epoch [{epoch+1}/{self.epochs}] Val_score : {val_score}")
 
             if val_loss_values >= val_loss:
                 print('save checkpoint!')
