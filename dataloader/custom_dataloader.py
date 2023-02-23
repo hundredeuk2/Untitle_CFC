@@ -7,14 +7,17 @@ from torch.utils.data import Dataset
 from sklearn.preprocessing import LabelEncoder
 
 class BERTDataset(Dataset):
-    def __init__(self, path, model_name, mode, max_len=512):
-        df = pd.read_excel(path)
+    def __init__(self, df, model_name, mode='train', max_len=512):
+        self.df = df
+        # df = pd.read_excel(path)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.mode = mode
         self.max_length = max_len
         self.encoder = LabelEncoder()
         if self.mode == "train":
-            self.sentence, self.label = self.load_data(df)
+            self.sentence, self.label = self.load_data(self.df)
+        else:
+            self.sentence = self.load_data(self.df)
 
     def load_data(self, data:pd.DataFrame, train=True):
         sentence = data['발화'].to_numpy()

@@ -47,5 +47,5 @@ class CustomModel(nn.Module):
         _, hidden = self.gru(outputs) 
         outputs = torch.cat([hidden[-1], hidden[-2]], dim=1)
         outputs= self.activation(outputs)
-        logits = self.regressor(outputs)
+        logits = self.classifier(outputs)
         return logits   
