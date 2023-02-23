@@ -7,16 +7,17 @@ import time
 import gc
 import einops as ein
 import torch.nn.functional as F
+from utils.metric import micro_f1
 
 class BaselineTrainer():
     """
     훈련과정입니다.
     """
-    def __init__(self, model, criterion, metric, optimizer, device, save_dir,
+    def __init__(self, model, optimizer, device, save_dir,
                  train_dataloader, valid_dataloader=None, lr_scheduler=None, epochs=1, tokenizer=None):
         self.model = model
-        self.criterion = nn.CrossEntropyLoss()
-        self.metric = metric
+        self.criterion = F.cross_entropy
+        self.metric = micro_f1
         self.optimizer = optimizer
         self.device = device
         self.save_dir = save_dir
@@ -46,11 +47,11 @@ class BaselineTrainer():
             logits = self.model(input_ids = batch["input_ids"].to(self.device),
                                 attention_mask = batch["attention_mask"].to(self.device))
             label = batch["labels"].squeeze().to(self.device)
-
-            loss = self.criterion(logits, label)    
+            value = F.softmax(logits)
+            loss = self.criterion(value, label)    
             loss.backward()
+
             epoch_loss += loss.detach().cpu().numpy().item()
-            
             self.optimizer.step()
             
             pbar.set_postfix({
@@ -62,9 +63,10 @@ class BaselineTrainer():
     def _valid_epoch(self, epoch):
         val_loss = 0
         val_steps = 0
+        val_score = 0
         total_probs = []
         total_labels = np.array([], dtype=np.long)
-        val_loss_values=[2]
+        val_loss_values= 2
         with torch.no_grad():
             self.model.eval()
             for valid_batch in tqdm(self.valid_dataloader):
@@ -72,32 +74,26 @@ class BaselineTrainer():
                 logits = self.model(valid_batch["input_ids"].to(self.device),
                                     valid_batch["attention_mask"].to(self.device))
                 label = valid_batch["labels"].squeeze().to(self.device)
+                value = F.softmax(logits)
+                loss = self.criterion(value, label)    
+                loss.backward()
 
-                
-                loss = self.criterion(logits, label)
                 val_loss += loss.detach().cpu().numpy().item()
-                
-                prob = F.softmax(logits, dim=-1).detach().cpu().tolist()
                 label = label.detach().cpu().numpy()
                 
-                total_probs.extend(prob)
-                total_labels = np.append(total_labels, label)
+                score = micro_f1(value.argmax(dim=1).detach().numpy(), label)
+                val_score += score
+            
 
             total_probs = np.array(total_probs)
             val_loss /= val_steps
+            val_score /= val_steps 
             print(f"Epoch [{epoch+1}/{self.epochs}] Val_loss : {val_loss}")
-            
-            for name, func in self.metric.items():
-                if name == 'klue_re_micro_f1':
-                    total_score = func(total_probs.argmax(-1), total_labels).item()
-                    print(f"Epoch [{epoch+1}/{self.epochs}] {name} : {total_score}")
-                else:
-                    total_score = func(total_probs, total_labels).item()
-                    print(f"Epoch [{epoch+1}/{self.epochs}] {name} : {total_score}")
+            print(f"Epoch [{epoch+1}/{self.epochs}] 'Val_score' : total_score")
 
-            if min(val_loss_values) >= val_loss:
+            if val_loss_values >= val_loss:
                 print('save checkpoint!')
                 if not os.path.exists(f'save/{self.save_dir}'):
                     os.makedirs(f'save/{self.save_dir}')
-                torch.save(self.model.state_dict(), f'save/{self.save_dir}/epoch:{epoch}_model.pt')
-                val_loss_values.append(val_loss)
+                torch.save(self.model.state_dict(), f'save/{self.save_dir}/model.pt')
+                val_loss_values = val_loss

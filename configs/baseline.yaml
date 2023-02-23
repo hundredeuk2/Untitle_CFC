@@ -1,0 +1,18 @@
+data:
+    data_path: '/opt/ml/docvqa/classifier/Customer-Feedback-Classifier/data/data.xlsx'
+model:
+    model_name: klue/roberta-large
+    optimizer: optim_Adam
+    model_class: EncoderModel
+    num_classes: 43
+    saved_name: baseline_model
+
+train:
+    seed: 41
+    gpus: 1
+    batch_size: 8
+    max_epoch: 3
+    dropout_rate: 0.2
+    learning_rate: 1e-5
+    max_length: 512
+    logging_step: 1
