@@ -16,7 +16,27 @@
 2. Oversampling to Data Augument
 3. Ensemble
 
-
+# Project Tree
+```
+DocVQA
+├─ configs
+│  └─ baseline.yaml
+├─ dataloader
+│  └─ custom_dataloader.py
+├─ model
+│  ├─ custom_model_old.py
+│  └─ custom_model.py
+├─ trainer
+│  └─ BaselineTrainer.py
+├─ utils
+│  ├─ metric.py
+│  ├─ seed.py
+│  └─ wandb.py
+├─ .gitignore
+├─ requirements.txt
+├─ train.py
+└─ inference.py
+```
 # Reference
 * KoELECTRA
 * KoBERT
