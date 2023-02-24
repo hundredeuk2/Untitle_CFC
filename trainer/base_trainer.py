@@ -41,6 +41,7 @@ class BaselineTrainer():
         self.model.train()
         epoch_loss = 0
         steps = 0
+        self.optimizer.zero_grad()
         pbar = tqdm(self.train_dataloader)
         for i, batch in enumerate(pbar):
             self.optimizer.zero_grad()
@@ -48,8 +49,8 @@ class BaselineTrainer():
             logits = self.model(input_ids = batch["input_ids"].to(self.device),
                                 attention_mask = batch["attention_mask"].to(self.device))
             label = batch["labels"].squeeze().to(self.device)
-            value = F.softmax(logits)
-            loss = self.criterion(value, label)    
+            value = F.softmax(logits,dim=1)
+            loss = self.criterion(logits.squeeze(), label)    
             loss.backward()
 
             epoch_loss += loss.detach().cpu().numpy().item()
@@ -74,8 +75,8 @@ class BaselineTrainer():
                 logits = self.model(valid_batch["input_ids"].to(self.device),
                                     valid_batch["attention_mask"].to(self.device))
                 label = valid_batch["labels"].squeeze().to(self.device)
-                value = F.softmax(logits)
-                loss = self.criterion(value, label)    
+                value = F.softmax(logits,dim=1)
+                loss = self.criterion(logits.squeeze(), label)    
 
                 val_loss += loss.detach().cpu().numpy().item()
                 label = label.detach().cpu().numpy()

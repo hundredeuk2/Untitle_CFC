@@ -8,7 +8,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 
 class BERTDataset(Dataset):
-    def __init__(self, path, model_name, mode='train', max_len=512):
+    def __init__(self, path, model_name, mode='train', max_len=126):
         # self.df = df
         df = pd.read_excel(path)
         
