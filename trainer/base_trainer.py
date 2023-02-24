@@ -64,11 +64,11 @@ class BaselineTrainer():
     def _valid_epoch(self, epoch):
         val_loss = 0
         val_steps = 0
-        val_score = 0
-
+        val_score = 0 
+        self.model.eval()
         val_loss_values= 2
         with torch.no_grad():
-            self.model.eval()
+            
             for valid_batch in tqdm(self.valid_dataloader):
                 val_steps += 1
                 logits = self.model(valid_batch["input_ids"].to(self.device),
@@ -76,15 +76,12 @@ class BaselineTrainer():
                 label = valid_batch["labels"].squeeze().to(self.device)
                 value = F.softmax(logits)
                 loss = self.criterion(value, label)    
-                loss.backward()
 
                 val_loss += loss.detach().cpu().numpy().item()
                 label = label.detach().cpu().numpy()
                 
-                score = micro_f1(value.argmax(dim=1).detach().numpy(), label)
+                score = micro_f1(value.argmax(dim=1).detach().cpu().numpy(), label)
                 val_score += score
-            
-
 
             val_loss /= val_steps
             val_score /= val_steps 
