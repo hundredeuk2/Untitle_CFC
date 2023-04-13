@@ -1,7 +1,5 @@
-pip install konlpy
-pip install git+https://github.com/haven-jeon/PyKoSpacing.git
-pip install git+https://github.com/ssut/py-hanspell.git
-pip install torch
-pip install einops
-pip install -U scikit-learn
-pip install openpyxl
+konlpy
+torch
+einops
+scikit-learn
+openpyxl

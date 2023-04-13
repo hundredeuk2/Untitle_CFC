@@ -13,10 +13,6 @@ from sklearn.model_selection import train_test_split
 
 def main(config):
     seed.seed_everything(config.train.seed)
-    # df = pd.read_excel(config.data.data_path)
-    # train, test = train_test_split(df, test_size=0.2, shuffle=True, random_state=42)
-    # train.reset_index(inplace=True, drop=True)
-    # test.reset_index(inplace=True, drop=True)
     # 데이터셋 로드 클래스를 불러옵니다.
     train = BERTDataset('/opt/ml/docvqa/classifier/Customer-Feedback-Classifier/data/data.xlsx', config.model.model_name)  
     valid = BERTDataset('/opt/ml/docvqa/classifier/Customer-Feedback-Classifier/data/data.xlsx', config.model.model_name, 'test')

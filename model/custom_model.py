@@ -48,4 +48,4 @@ class CustomModel(nn.Module):
         outputs = torch.cat([hidden[-1], hidden[-2]], dim=1)
         outputs= self.activation(outputs)
         logits = self.classifier(outputs)
-        return logits   
+        return logits

@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "fastapi-test"
+version = "0.1.0"
+description = "test"
+authors = ["hundredeuk2 <leehd1995@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "fastapi_test"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.70.0"
+uvicorn = "^0.15.0"
+pytest = "^6.2.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
